@@ -85,7 +85,7 @@
     // #
 </script>
 
-<div class="page fl cl p-5" style="background-color: {color.color}">
+<div class="page fl cl" style="background-color: {color.color}">
     <div class="abs-1 fl j-c g-2">
         <b class="color-code-preview">{color.color}</b>
         <button type="button" class="copy-btn mt-1" on:click={copyColor}>
