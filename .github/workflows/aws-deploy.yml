@@ -22,7 +22,7 @@ jobs:
       - name: exec build command.
         run: npm run build
       - name: Set-up ssh dir.
-        run: mkdir ~/.ssh.
+        run: mkdir ~/.ssh
       - name: Set-up ssh-key file.
         run: echo "${{ secrets.SSH_KEY }}">~/.ssh/.pem
       - name: exec scp command.
