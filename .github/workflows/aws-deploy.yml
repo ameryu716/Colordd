@@ -3,7 +3,7 @@ name: AWS SCP Deploy
 on:
   push:
     branches:
-      - dev
+      - main
 
 jobs:
   build:
@@ -12,5 +12,5 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - run: echo "${{ secrets.TEST_KEY }}">s.txt
-    - run: cat s.txt 
+    - run: echo "${{ secrets.SSH_KEY }}">~/.ssh/.pem
+    - run: scp -i "~/.ssh/.pem" -r "./dist/*" ${{secrets.SSH_USER}}@${{secrets.DEPLOY_HOST}}:${{secrets.DEPLOY_DIR}} 
