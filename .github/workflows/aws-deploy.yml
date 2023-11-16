@@ -6,11 +6,22 @@ on:
       - main
 
 jobs:
-  build:
+  Build-and-deploy:
 
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - run: echo "${{ secrets.SSH_KEY }}">~/.ssh/.pem
-    - run: scp -i "~/.ssh/.pem" -r "./dist/*" ${{secrets.SSH_USER}}@${{secrets.DEPLOY_HOST}}:${{secrets.DEPLOY_DIR}} 
+      - name: Setup-node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '14'
+      - name: Checkout Repo.
+        uses: actions/checkout@v4
+      - name: exec build command.
+        run: npm run build
+      - name: Set-up ssh dir.
+        run: mkdir ~/.ssh.
+      - name: Set-up ssh-key file.
+        run: echo "${{ secrets.SSH_KEY }}">~/.ssh/.pem
+      - name: exec scp command.
+        run: scp -i "~/.ssh/.pem" -r "./dist/*" ${{secrets.SSH_USER}}@${{secrets.DEPLOY_HOST}}:${{secrets.DEPLOY_DIR}}
