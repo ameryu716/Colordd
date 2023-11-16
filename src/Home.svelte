@@ -123,6 +123,7 @@
         <ul class="my-0">
             <li>指定色：{color.color}</li>
             <li>反対色：{color.invert_color}</li>
+            <li>It's Grate!</li>
         </ul>
     </aside>
 </div>
