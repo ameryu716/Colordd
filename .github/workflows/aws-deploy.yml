@@ -40,6 +40,9 @@ jobs:
       - name: Set-up ssh dir.
         run: mkdir ~/.ssh
 
+      - name: Set-up ssh config-file
+        run: echo "Host ${{secrets.DEPLOY_HOST}}">config;echo "  StrictHostKeyChecking no">config;echo "  UserKnownHostsFile /dev/null">config
+
       - name: Set-up ssh-key file.
         run: echo "${{ secrets.SSH_KEY }}">~/.ssh/.pem
 
