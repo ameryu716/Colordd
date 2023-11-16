@@ -1,0 +1,16 @@
+name: AWS SCP Deploy
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - run: echo "aaa">s.txt
+    - run: cat s.txt 
