@@ -69,6 +69,9 @@ jobs:
                   echo "  IdentityFile ~/.ssh/aws.pem">~/.ssh/config;
                   echo "  StrictHostKeyChecking no">~/.ssh/config;
 
+            - name: Show ssh config-file
+              run: cat ~/.ssh/config
+
             - name: Permission fix config-file
               run: chmod 600 ~/.ssh/config
 
