@@ -81,7 +81,7 @@ jobs:
 
             - name: exec scp command.
               # run: scp -r "./dist/*" ${{secrets.SSH_USER}}@${{secrets.DEPLOY_HOST}}:${{secrets.DEPLOY_DIR}}
-              run: scp -r "dist/*" aws:${{secrets.DEPLOY_DIR}}
+              run: scp dist/* aws:${{secrets.DEPLOY_DIR}}
 
             - name: Remove Github Actions IP from security group
               run: |
