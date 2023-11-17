@@ -37,6 +37,9 @@ jobs:
       - name: exec build command.
         run: npm run build
 
+      - name: permission fix.
+        run: chmod -R u+x dist
+
       - name: SCP Deploy
         uses: lBeJIuk/scp_action@v1
         with:
