@@ -37,8 +37,11 @@ jobs:
       - name: exec build command.
         run: npm run build
 
+      - name: tes
+        run: ls -la dist
+
       - name: permission fix.
-        run: chmod -R u+x dist
+        run: chmod -R +x dist
 
       - name: SCP Deploy
         uses: lBeJIuk/scp_action@v1
