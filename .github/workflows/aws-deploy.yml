@@ -63,11 +63,11 @@ jobs:
 
             - name: Set-up ssh config-file
               run: >
-                  echo "Host aws">~/.ssh/config;\
-                  echo "  HostName ${{secrets.DEPLOY_HOST}}">~/.ssh/config;\
-                  echo "  User ${{secrets.SSH_USER}}">~/.ssh/config;\
-                  echo "  IdentityFile ~/.ssh/aws.pem">~/.ssh/config;\
-                  echo "  StrictHostKeyChecking no">~/.ssh/config;\
+                  echo "Host aws">~/.ssh/config;
+                  echo "  HostName ${{secrets.DEPLOY_HOST}}">~/.ssh/config;
+                  echo "  User ${{secrets.SSH_USER}}">~/.ssh/config;
+                  echo "  IdentityFile ~/.ssh/aws.pem">~/.ssh/config;
+                  echo "  StrictHostKeyChecking no">~/.ssh/config;
 
             - name: Permission fix config-file
               run: chmod 600 ~/.ssh/config
