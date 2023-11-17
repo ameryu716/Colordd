@@ -76,8 +76,8 @@ jobs:
             - name: Permission fix pem-file
               run: chmod 600 ~/.ssh/aws.pem
 
-            - name: ls
-              run: ls
+            # - name: ls
+            #   run: ls
 
             - name: exec scp command.
               # run: scp -r "./dist/*" ${{secrets.SSH_USER}}@${{secrets.DEPLOY_HOST}}:${{secrets.DEPLOY_DIR}}
