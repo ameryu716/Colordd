@@ -62,7 +62,7 @@ jobs:
             #   run: echo "${{secrets.DEPLOY_HOST}} ssh-rsa ${{secrets.SSH_KEY}}">~/.ssh/known_hosts
 
             - name: Set-up ssh config-file
-              run: echo -e "Host aws\  HostName ${{secrets.DEPLOY_HOST}}  User ${{secrets.SSH_USER}}  IdentityFile ~/.ssh/aws.pem  StrictHostKeyChecking no">~/.ssh/config
+              run: echo -e "Host aws\n  HostName ${{secrets.DEPLOY_HOST}}\n  User ${{secrets.SSH_USER}}\n  IdentityFile ~/.ssh/aws.pem\n  StrictHostKeyChecking no">~/.ssh/config
 
             - name: Show ssh config-file
               run: cat ~/.ssh/config
