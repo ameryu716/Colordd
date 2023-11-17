@@ -143,7 +143,7 @@
 
         .color-code-preview {
             font-size: 4rem;
-            color: #fff;
+            color: #f00;
             // filter: drop-shadow(0 0 0.75rem #eee);
             // text-shadow: 0px 0px 10px #aeaeae;
         }
