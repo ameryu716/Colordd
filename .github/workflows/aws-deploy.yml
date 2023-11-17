@@ -1,85 +1,94 @@
 name: AWS SCP Deploy
 
 on:
-  push:
-    branches:
-      - main
+    push:
+        branches:
+            - main
 
 jobs:
-  Build-and-deploy:
+    Build-and-deploy:
+        runs-on: ubuntu-latest
 
-    runs-on: ubuntu-latest
+        steps:
+            - name: Get Github action IP
+              id: ip
+              uses: haythem/public-ip@v1.2
 
-    steps:
-      - name: Get Github action IP
-        id: ip
-        uses: haythem/public-ip@v1.2
-          
-      - name: Add Github Actions IP to Security group
-        run: aws ec2 authorize-security-group-ingress --group-name ${{ env.AWS_SECURITY_GROUP_NAME }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32    
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: ap-northeast-1
-          AWS_SECURITY_GROUP_NAME: ${{ secrets.AWS_SECURITY_GROUP_NAME }}
-         
-      - name: Setup-node
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'
+            - name: Add Github Actions IP to Security group
+              run: aws ec2 authorize-security-group-ingress --group-name ${{ env.AWS_SECURITY_GROUP_NAME }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
+              env:
+                  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+                  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                  AWS_DEFAULT_REGION: ap-northeast-1
+                  AWS_SECURITY_GROUP_NAME: ${{ secrets.AWS_SECURITY_GROUP_NAME }}
 
-      - name: Checkout Repo.
-        uses: actions/checkout@v4
+            - name: Setup-node
+              uses: actions/setup-node@v3
+              with:
+                  node-version: "20"
 
-      - name: Install Vite.
-        run: npm install vite@latest
+            - name: Checkout Repo.
+              uses: actions/checkout@v4
 
-      - name: exec build command.
-        run: npm run build
+            - name: Install Vite.
+              run: npm install vite@latest
 
-      # - name: tes-1
-      #   run: ls -la dist
+            - name: exec build command.
+              run: npm run build
 
-      # - name: permission fix.
-      #   run: chmod -R 0777 dist
+            # - name: tes-1
+            #   run: ls -la dist
 
-      # - name: tes-2
-      #   run: ls -la dist
+            # - name: permission fix.
+            #   run: chmod -R 0777 dist
 
-      # - name: SCP Deploy
-      #   uses: lBeJIuk/scp_action@v1
-      #   with:
-      #     public_key: ${{ secrets.SSH_KEY }}
-      #     ssh_port: 22
-      #     ssh_username: ${{ secrets.SSH_USER }}
-      #     ssh_host: ${{ secrets.DEPLOY_HOST }}
-      #     source: './dist/*'
-      #     target: ${{ secrets.DEPLOY_DIR }}
+            # - name: tes-2
+            #   run: ls -la dist
 
-      - name: Set-up ssh dir.
-        run: mkdir ~/.ssh
+            # - name: SCP Deploy
+            #   uses: lBeJIuk/scp_action@v1
+            #   with:
+            #     public_key: ${{ secrets.SSH_KEY }}
+            #     ssh_port: 22
+            #     ssh_username: ${{ secrets.SSH_USER }}
+            #     ssh_host: ${{ secrets.DEPLOY_HOST }}
+            #     source: './dist/*'
+            #     target: ${{ secrets.DEPLOY_DIR }}
 
-      - name: Set-up known_hosts file.
-        run: echo "${{secrets.DEPLOY_HOST}} ssh-rsa ${{secrets.SSH_KEY}}">~/.ssh/known_hosts
+            - name: Set-up ssh dir.
+              run: mkdir ~/.ssh
 
-      - name: Set-up ssh config-file
-        run: echo "Host ${{secrets.DEPLOY_HOST}}">config;echo "  StrictHostKeyChecking no">config;echo "  UserKnownHostsFile /dev/null">config
+            # - name: Set-up known_hosts file.
+            #   run: echo "${{secrets.DEPLOY_HOST}} ssh-rsa ${{secrets.SSH_KEY}}">~/.ssh/known_hosts
 
-      # - name: Set-up ssh-key file.
-      #   run: echo "${{ secrets.SSH_KEY }}">~/.ssh/aws.pem
+            - name: Set-up ssh config-file
+              run: >
+                  echo "Host aws">~/.ssh/config;\
+                  echo "  HostName ${{secrets.DEPLOY_HOST}}">~/.ssh/config;\
+                  echo "  User ${{secrets.SSH_USER}}">~/.ssh/config;\
+                  echo "  IdentityFile ~/.ssh/aws.pem">~/.ssh/config;\
+                  echo "  StrictHostKeyChecking no">~/.ssh/config;\
 
-      - name: exec scp command.
-        run: scp -r "./dist/*" ${{secrets.SSH_USER}}@${{secrets.DEPLOY_HOST}}:${{secrets.DEPLOY_DIR}}
+            - name: Permission fix config-file
+              run: chmod 600 ~/.ssh/config
 
-      - name: Remove Github Actions IP from security group
-        run: |
-          aws ec2 revoke-security-group-ingress --group-name ${{ env.AWS_SECURITY_GROUP_NAME }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: ap-northeast-1
-          AWS_SECURITY_GROUP_NAME: ${{ secrets.AWS_SECURITY_GROUP_NAME }}
+            - name: Set-up ssh-key file.
+              run: echo "${{ secrets.SSH_KEY }}">~/.ssh/aws.pem
 
-        if: always()
-      
-      
+            - name: Permission fix pem-file
+              run: chmod 600 ~/.ssh/aws.pem
+
+            - name: exec scp command.
+              # run: scp -r "./dist/*" ${{secrets.SSH_USER}}@${{secrets.DEPLOY_HOST}}:${{secrets.DEPLOY_DIR}}
+              run: scp -r "./dist/*" aws:${{secrets.DEPLOY_DIR}}
+
+            - name: Remove Github Actions IP from security group
+              run: |
+                  aws ec2 revoke-security-group-ingress --group-name ${{ env.AWS_SECURITY_GROUP_NAME }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
+              env:
+                  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+                  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                  AWS_DEFAULT_REGION: ap-northeast-1
+                  AWS_SECURITY_GROUP_NAME: ${{ secrets.AWS_SECURITY_GROUP_NAME }}
+
+              if: always()
