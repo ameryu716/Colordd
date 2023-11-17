@@ -37,36 +37,36 @@ jobs:
       - name: exec build command.
         run: npm run build
 
-      - name: tes-1
-        run: ls -la dist
+      # - name: tes-1
+      #   run: ls -la dist
 
-      - name: permission fix.
-        run: chmod -R 0777 dist
+      # - name: permission fix.
+      #   run: chmod -R 0777 dist
 
-      - name: tes-2
-        run: ls -la dist
+      # - name: tes-2
+      #   run: ls -la dist
 
-      - name: SCP Deploy
-        uses: lBeJIuk/scp_action@v1
-        with:
-          public_key: ${{ secrets.SSH_KEY }}
-          ssh_port: 22
-          ssh_username: ${{ secrets.SSH_USER }}
-          ssh_host: ${{ secrets.DEPLOY_HOST }}
-          source: './dist/*'
-          target: ${{ secrets.DEPLOY_DIR }}
+      # - name: SCP Deploy
+      #   uses: lBeJIuk/scp_action@v1
+      #   with:
+      #     public_key: ${{ secrets.SSH_KEY }}
+      #     ssh_port: 22
+      #     ssh_username: ${{ secrets.SSH_USER }}
+      #     ssh_host: ${{ secrets.DEPLOY_HOST }}
+      #     source: './dist/*'
+      #     target: ${{ secrets.DEPLOY_DIR }}
 
-      # - name: Set-up ssh dir.
-      #   run: mkdir ~/.ssh
+      - name: Set-up ssh dir.
+        run: mkdir ~/.ssh
 
-      # - name: Set-up ssh config-file
-      #   run: echo "Host ${{secrets.DEPLOY_HOST}}">config;echo "  StrictHostKeyChecking no">config;echo "  UserKnownHostsFile /dev/null">config
+      - name: Set-up ssh config-file
+        run: echo "Host ${{secrets.DEPLOY_HOST}}">config;echo "  StrictHostKeyChecking no">config;echo "  UserKnownHostsFile /dev/null">config
 
-      # - name: Set-up ssh-key file.
-      #   run: echo "${{ secrets.SSH_KEY }}">~/.ssh/aws.pem
+      - name: Set-up ssh-key file.
+        run: echo "${{ secrets.SSH_KEY }}">~/.ssh/aws.pem
 
-      # - name: exec scp command.
-      #   run: scp -i "~/.ssh/aws.pem" -r "./dist/*" ${{secrets.SSH_USER}}@${{secrets.DEPLOY_HOST}}:${{secrets.DEPLOY_DIR}}
+      - name: exec scp command.
+        run: scp -i "~/.ssh/aws.pem" -r "./dist/*" ${{secrets.SSH_USER}}@${{secrets.DEPLOY_HOST}}:${{secrets.DEPLOY_DIR}}
 
       - name: Remove Github Actions IP from security group
         run: |
