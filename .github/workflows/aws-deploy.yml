@@ -58,11 +58,14 @@ jobs:
             - name: Set-up ssh dir.
               run: mkdir ~/.ssh
 
+            - name: Permission ssh dir
+              run: chmod -R 0700 ~/.ssh
+
             # - name: Set-up known_hosts file.
             #   run: echo "${{secrets.DEPLOY_HOST}} ssh-rsa ${{secrets.SSH_KEY}}">~/.ssh/known_hosts
 
             - name: Set-up ssh config-file
-              run: echo -e "Host aws\n  HostName ${{secrets.DEPLOY_HOST}}\n  User ${{secrets.SSH_USER}}\n  IdentityFile ~/.ssh/aws.pem\n  StrictHostKeyChecking no">~/.ssh/config
+              run: echo -e "Host aws\n    HostName ${{secrets.DEPLOY_HOST}}\n    User ${{secrets.SSH_USER}}\n    IdentityFile ~/.ssh/aws.pem\n    StrictHostKeyChecking no">~/.ssh/config
 
             - name: Show ssh config-file
               run: cat ~/.ssh/config
