@@ -2,41 +2,96 @@
     import Toastify from "toastify-js";
 
     let color = {
-        color: "#222222" as string,
-        text: "222222" as string,
-        invert_color: "#dddddd" as string,
+        color: "" as string,
+        text: "" as string,
+        invert_color: "" as string,
         is_light: false as boolean,
         is_dark: true as boolean,
+        rgba: {
+            r: 34,
+            g: 34,
+            b: 34,
+            a: 1.0,
+        },
     };
 
-    const onInputColorPicker = (e:any) => {
+    let switcher = {
+        alpha: false,
+    };
+
+    const onInputColorPicker = (e: any) => {
         // console.log(e);
         const _value = e.target.value;
         applyColor(_value);
     };
 
-    const onInputColorText = (e:any) => {
+    const onInputColorText = (e: any) => {
         // console.log(e);
-        if(!e.target) return;
+        if (!e.target) return;
         const _text_value: string = e.target.value.toUpperCase();
-        color.text = _text_value
+        color.text = _text_value;
 
         applyColor(_text_value);
     };
 
+    const onClickSelect = (e: any) => {
+        e.target.select();
+    };
+
     const applyColor = (value: string) => {
         if (isColor(value)) {
-            const _color_value = value;
-            color.color = '#' + _color_value;
-            color.text = _color_value.replace(/#/g, "");
+            let _color_value = value.toUpperCase();
+
+            if (_color_value.length === 4 && _color_value[3] === "F") {
+                _color_value = _color_value.substring(0, 3);
+            } else if (
+                _color_value.length === 8 &&
+                `${_color_value[6]}${_color_value[7]}` === "FF"
+            ) {
+                _color_value = _color_value.substring(0, 6);
+            }
+
+            const _replaced = _color_value.replace(/#/g, "");
+            color.color = `#${_replaced}`;
+            color.text = _replaced;
             color.invert_color = invertColor(_color_value);
+
+            const _splits = _replaced.split("");
+            switch (_replaced.length) {
+                case 3:
+                    color.rgba.r = parseInt(`0x${_splits[0]}${_splits[0]}`);
+                    color.rgba.g = parseInt(`0x${_splits[1]}${_splits[1]}`);
+                    color.rgba.b = parseInt(`0x${_splits[2]}${_splits[2]}`);
+                    break;
+                case 4:
+                    color.rgba.r = parseInt(`0x${_splits[0]}${_splits[0]}`);
+                    color.rgba.g = parseInt(`0x${_splits[1]}${_splits[1]}`);
+                    color.rgba.b = parseInt(`0x${_splits[2]}${_splits[2]}`);
+                    color.rgba.a =
+                        parseInt(`0x${_splits[3]}${_splits[3]}`) / 255;
+                    break;
+                case 6:
+                    color.rgba.r = parseInt(`0x${_splits[0]}${_splits[1]}`);
+                    color.rgba.g = parseInt(`0x${_splits[2]}${_splits[3]}`);
+                    color.rgba.b = parseInt(`0x${_splits[4]}${_splits[5]}`);
+                    break;
+                case 8:
+                    color.rgba.r = parseInt(`0x${_splits[0]}${_splits[1]}`);
+                    color.rgba.g = parseInt(`0x${_splits[2]}${_splits[3]}`);
+                    color.rgba.b = parseInt(`0x${_splits[4]}${_splits[5]}`);
+                    color.rgba.a =
+                        parseInt(`0x${_splits[6]}${_splits[7]}`) / 255;
+                    break;
+            }
         }
     };
 
     const isColor = (string: string) => {
-        
-        const _is = string.match(/([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/) !== null;
-        console.log(`is-color:${string}:${_is}`);
+        //  /([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
+        const regex =
+            /^([A-Fa-f0-9]{8}|[A-Fa-f0-9]{4}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
+        const _is = regex.test(string);
+        console.log(`is color:${string}:${_is}`);
         return _is;
     };
 
@@ -87,13 +142,35 @@
             "#" + di_red.toString() + di_green.toString() + di_blue.toString()
         );
     };
+
+    const getRandomColor = (include_alpha = false) => {
+        let _c = "";
+        for (var i = 0; i < 6; i++) {
+            _c += ((16 * Math.random()) | 0).toString(16);
+        }
+        if (include_alpha) {
+            for (var i = 0; i < 2; i++) {
+                _c += ((16 * Math.random()) | 0).toString(16);
+            }
+        } else {
+            _c += "FF";
+        }
+        return _c;
+    };
+
+    const reloadRandomColor = () => {
+        applyColor(getRandomColor(switcher.alpha));
+    };
+
+    reloadRandomColor();
+
     // #
 </script>
 
 <div class="page fl cl" style="background-color: {color.color}">
     <div class="abs-1 fl j-c g-2">
         <b class="color-code-preview">{color.color}</b>
-        <button type="button" class="copy-btn mt-1" on:click={copyColor}>
+        <button type="button" class="btn-tr mt-1" on:click={copyColor}>
             <svg
                 xmlns="http://www.w3.org/2000/svg"
                 height="36"
@@ -106,20 +183,85 @@
                 /></svg
             >
         </button>
+        <button type="button" class="btn-tr mt-1" on:click={reloadRandomColor}>
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                height="36"
+                viewBox="0 -960 960 960"
+                width="36"
+                fill="#eee"
+            >
+                <path
+                    d="M160-160v-80h110l-16-14q-52-46-73-105t-21-119q0-111 66.5-197.5T400-790v84q-72 26-116 88.5T240-478q0 45 17 87.5t53 78.5l10 10v-98h80v240H160Zm400-10v-84q72-26 116-88.5T720-482q0-45-17-87.5T650-648l-10-10v98h-80v-240h240v80H690l16 14q49 49 71.5 106.5T800-482q0 111-66.5 197.5T560-170Z"
+                /></svg
+            >
+        </button>
+        <label class="label-box fl g-1 mt-1">
+            <span>透明度</span>
+            <input type="checkbox" bind:checked={switcher.alpha} hidden />
+            {#if switcher.alpha}
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="28"
+                    viewBox="0 -960 960 960"
+                    width="28"
+                    fill="#fff"
+                    ><path
+                        d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"
+                    /></svg
+                >
+            {:else}
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="28"
+                    viewBox="0 -960 960 960"
+                    width="28"
+                    fill="#fff"
+                    ><path
+                        d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560H200v560Z"
+                    /></svg
+                >
+            {/if}
+        </label>
     </div>
     <div class="abs-2 fl j-c">
         <div class="p-5 main-board">
-            <div class="fl j-c g-1 color-control-card p-2">
+            <div class="fl j-c g-1 color-card color-control p-2">
                 <b class="sharp">#</b>
                 <input
                     type="text"
                     value={color.text}
                     on:input={onInputColorText}
+                    on:click={onClickSelect}
                 />
                 <input
                     type="color"
                     value={color.color}
                     on:input={onInputColorPicker}
+                />
+            </div>
+            <div class="fl g-1 p-2 color-card rgba">
+                <b class="rgb">RGBA</b>
+                <input
+                    type="number"
+                    value={color.rgba.r}
+                    on:click={onClickSelect}
+                />
+                <input
+                    type="number"
+                    value={color.rgba.g}
+                    on:click={onClickSelect}
+                />
+                <input
+                    type="number"
+                    value={color.rgba.b}
+                    on:click={onClickSelect}
+                />
+                <input
+                    type="number"
+                    step="0.1"
+                    value={color.rgba.a}
+                    on:click={onClickSelect}
                 />
             </div>
         </div>
@@ -128,7 +270,7 @@
         <ul class="my-0">
             <li>指定色：{color.color}</li>
             <li>反対色：{color.invert_color}</li>
-            <li>It's Grate!</li>
+            <!-- <li>It's Grate!</li> -->
         </ul>
     </aside>
 </div>
@@ -166,15 +308,6 @@
             }
         }
 
-        .color-control-card {
-            // width: 300px;
-            // height: 200px;
-            background-color: #fff;
-            .sharp {
-                font-size: 2rem;
-            }
-        }
-
         input {
             outline: none;
             border: solid 1px gray;
@@ -187,18 +320,54 @@
                 padding-left: 0.5rem;
                 padding-right: 0.5rem;
             }
+            &[type="number"] {
+                font-size: 1.5rem;
+                padding-left: 0.5rem;
+                padding-right: 0.5rem;
+            }
             &[type="color"] {
                 width: 50px;
                 cursor: pointer;
             }
+            &[type="checkbox"] {
+                width: 30px;
+                height: 30px;
+                cursor: pointer;
+            }
         }
 
-        .copy-btn {
+        .color-card {
+            background-color: #fff;
+            &.color-control {
+                .sharp {
+                    font-size: 2rem;
+                }
+            }
+
+            &.rgba {
+                .rgb {
+                    font-size: 1.4rem;
+                }
+                input {
+                    width: 60px;
+                }
+            }
+        }
+
+        .btn-tr {
             background: transparent;
             border: 1px solid #eee;
             color: #eee;
             border-radius: 0.3em;
             cursor: pointer;
+        }
+
+        .label-box {
+            border: solid 1px #fff;
+            border-radius: 0.3em;
+            color: #fff;
+            cursor: pointer;
+            padding: 0.3rem 0.5rem;
         }
 
         .aside-board {
