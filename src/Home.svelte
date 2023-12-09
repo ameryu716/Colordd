@@ -9,15 +9,17 @@
         is_dark: true as boolean,
     };
 
-    const onInputColorPicker = (e) => {
+    const onInputColorPicker = (e:any) => {
         // console.log(e);
         const _value = e.target.value;
         applyColor(_value);
     };
 
-    const onInputColorText = (e) => {
+    const onInputColorText = (e:any) => {
         // console.log(e);
-        const _text_value: string = e.target.value;
+        if(!e.target) return;
+        const _text_value: string = e.target.value.toUpperCase();
+        color.text = _text_value
 
         applyColor(_text_value);
     };
@@ -25,14 +27,17 @@
     const applyColor = (value: string) => {
         if (isColor(value)) {
             const _color_value = value;
-            color.color = _color_value;
+            color.color = '#' + _color_value;
             color.text = _color_value.replace(/#/g, "");
             color.invert_color = invertColor(_color_value);
         }
     };
 
     const isColor = (string: string) => {
-        return string.match(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/) !== null;
+        
+        const _is = string.match(/([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/) !== null;
+        console.log(`is-color:${string}:${_is}`);
+        return _is;
     };
 
     const copyColor = async () => {
@@ -143,7 +148,7 @@
 
         .color-code-preview {
             font-size: 4rem;
-            color: #f00;
+            color: #fff;
             // filter: drop-shadow(0 0 0.75rem #eee);
             // text-shadow: 0px 0px 10px #aeaeae;
         }
