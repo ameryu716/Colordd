@@ -19,6 +19,12 @@
         alpha: false,
     };
 
+    let history = {
+        color: [] as string[],
+    };
+
+    const color_history_key = "ch";
+
     const onInputColorPicker = (e: any) => {
         // console.log(e);
         const _value = e.target.value;
@@ -38,7 +44,7 @@
         e.target.select();
     };
 
-    const applyColor = (value: string) => {
+    const applyColor = (value: string, history_push = true) => {
         if (isColor(value)) {
             let _color_value = value.toUpperCase();
 
@@ -83,15 +89,30 @@
                         parseInt(`0x${_splits[6]}${_splits[7]}`) / 255;
                     break;
             }
+
+            if (history_push) {
+                registColorHistory(color.color);
+            }
         }
     };
 
-    const isColor = (string: string) => {
+    const registColorHistory = (_c: string) => {
+        if (history.color.length > 100) {
+            history.color.pop();
+        }
+        history.color.push(_c);
+        history.color = history.color;
+        const _st = JSON.stringify(history.color);
+        localStorage.setItem(color_history_key, _st);
+    };
+
+    const isColor = (_v: string) => {
         //  /([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
+        const hash_replaced = _v.replace(/#/g, "");
         const regex =
             /^([A-Fa-f0-9]{8}|[A-Fa-f0-9]{4}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
-        const _is = regex.test(string);
-        console.log(`is color:${string}:${_is}`);
+        const _is = regex.test(hash_replaced);
+        console.log(`is color:${_v}:${_is}`);
         return _is;
     };
 
@@ -162,12 +183,36 @@
         applyColor(getRandomColor(switcher.alpha));
     };
 
-    reloadRandomColor();
+    {
+        const _history = localStorage.getItem(color_history_key);
+        console.log("history-is");
+
+        console.log(_history);
+
+        if (_history && _history.length > 0) {
+            history.color = JSON.parse(_history);
+        }
+
+        reloadRandomColor();
+    }
 
     // #
 </script>
 
 <div class="page fl cl" style="background-color: {color.color}">
+    <aside class="color-history">
+        <ul>
+            {#each history.color.reverse() as _, i}
+                <li>
+                    <div
+                        class="box"
+                        style={`background-color: ${_}`}
+                        on:click={() => applyColor(_, false)}
+                    ></div>
+                </li>
+            {/each}
+        </ul>
+    </aside>
     <div class="abs-1 fl j-c g-2">
         <b class="color-code-preview">{color.color}</b>
         <button type="button" class="btn-tr mt-1" on:click={copyColor}>
@@ -266,10 +311,29 @@
             </div>
         </div>
     </div>
-    <aside class="aside-board p-3 pl-0">
-        <ul class="my-0">
-            <li>指定色：{color.color}</li>
-            <li>反対色：{color.invert_color}</li>
+    <aside class="aside-board">
+        <b class="title">ColorDD</b>
+        <ul>
+            <li>
+                <div>
+                    <span>指定色：{color.color}</span>
+                    <!-- <div
+                        class="box"
+                        style={`background-color: ${_}`}
+                        on:click={() => applyColor(_, false)}
+                    ></div> -->
+                </div>
+            </li>
+            <li>
+                <div>
+                    <span>反対色：{color.invert_color}</span>
+                    <!-- <div
+                        class="box"
+                        style={`background-color: ${color.invert_color}`}
+                        on:click={() => applyColor(color.invert_color)}
+                    ></div> -->
+                </div>
+            </li>
             <!-- <li>It's Grate!</li> -->
         </ul>
     </aside>
@@ -293,6 +357,9 @@
             color: #fff;
             // filter: drop-shadow(0 0 0.75rem #eee);
             // text-shadow: 0px 0px 10px #aeaeae;
+            @media screen and (max-width: 1000px) {
+                font-size: 2rem;
+            }
         }
 
         .abs-2 {
@@ -347,9 +414,16 @@
             &.rgba {
                 .rgb {
                     font-size: 1.4rem;
+                    @media screen and (max-width: 1000px) {
+                        font-size: 1.2rem;
+                    }
                 }
                 input {
                     width: 60px;
+                    @media screen and (max-width: 1000px) {
+                        width: 45px;
+                        font-size: 1.3rem;
+                    }
                 }
             }
         }
@@ -376,6 +450,48 @@
             right: 0;
             border-radius: 0 0 0 0.5rem;
             background-color: rgba($color: #fff, $alpha: 0.7);
+            padding: 0.5rem 1rem 1rem;
+
+            .title {
+                font-size: 1.5rem;
+                margin-bottom: 0.5rem;
+                display: block;
+            }
+            ul {
+                margin: 0;
+                padding: 0;
+                li {
+                    list-style: none;
+                    .box {
+                        height: 30px;
+                        width: 30px;
+                        border: solid 1px #fff;
+                    }
+                }
+            }
+        }
+
+        .color-history {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            background-color: rgba($color: #fff, $alpha: 0.7);
+            z-index: 2;
+            height: 100vh;
+            overflow-y: scroll;
+            ul {
+                padding: 0;
+                margin: 0;
+                li {
+                    list-style: none;
+                }
+            }
+            .box {
+                height: 30px;
+                width: 30px;
+                border: solid 1px #fff;
+            }
         }
     }
 </style>
