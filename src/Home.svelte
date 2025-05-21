@@ -23,12 +23,12 @@
         color: [] as string[],
     };
 
-    const color_history_key = "ch";
+    const COLOR_HISTORY_KEY = "ch";
 
     const onInputColorPicker = (e: any) => {
         // console.log(e);
         const _value = e.target.value;
-        applyColor(_value);
+        applyColor(_value, false);
     };
 
     const onInputColorText = (e: any) => {
@@ -45,65 +45,66 @@
     };
 
     const applyColor = (value: string, history_push = true) => {
-        if (isColor(value)) {
-            let _color_value = value.toUpperCase();
+        if (!isColor(value)) return;
 
-            if (_color_value.length === 4 && _color_value[3] === "F") {
-                _color_value = _color_value.substring(0, 3);
-            } else if (
-                _color_value.length === 8 &&
-                `${_color_value[6]}${_color_value[7]}` === "FF"
-            ) {
-                _color_value = _color_value.substring(0, 6);
-            }
+        let _color_value = value.toUpperCase();
 
-            const _replaced = _color_value.replace(/#/g, "");
-            color.color = `#${_replaced}`;
-            color.text = _replaced;
-            color.invert_color = invertColor(_color_value);
+        if (_color_value.length === 4 && _color_value[3] === "F") {
+            _color_value = _color_value.substring(0, 3);
+        } else if (
+            _color_value.length === 8 &&
+            `${_color_value[6]}${_color_value[7]}` === "FF"
+        ) {
+            _color_value = _color_value.substring(0, 6);
+        }
 
-            const _splits = _replaced.split("");
-            switch (_replaced.length) {
-                case 3:
-                    color.rgba.r = parseInt(`0x${_splits[0]}${_splits[0]}`);
-                    color.rgba.g = parseInt(`0x${_splits[1]}${_splits[1]}`);
-                    color.rgba.b = parseInt(`0x${_splits[2]}${_splits[2]}`);
-                    break;
-                case 4:
-                    color.rgba.r = parseInt(`0x${_splits[0]}${_splits[0]}`);
-                    color.rgba.g = parseInt(`0x${_splits[1]}${_splits[1]}`);
-                    color.rgba.b = parseInt(`0x${_splits[2]}${_splits[2]}`);
-                    color.rgba.a =
-                        parseInt(`0x${_splits[3]}${_splits[3]}`) / 255;
-                    break;
-                case 6:
-                    color.rgba.r = parseInt(`0x${_splits[0]}${_splits[1]}`);
-                    color.rgba.g = parseInt(`0x${_splits[2]}${_splits[3]}`);
-                    color.rgba.b = parseInt(`0x${_splits[4]}${_splits[5]}`);
-                    break;
-                case 8:
-                    color.rgba.r = parseInt(`0x${_splits[0]}${_splits[1]}`);
-                    color.rgba.g = parseInt(`0x${_splits[2]}${_splits[3]}`);
-                    color.rgba.b = parseInt(`0x${_splits[4]}${_splits[5]}`);
-                    color.rgba.a =
-                        parseInt(`0x${_splits[6]}${_splits[7]}`) / 255;
-                    break;
-            }
+        const _replaced = _color_value.replace(/#/g, "");
+        color.color = `#${_replaced}`;
+        color.text = _replaced;
+        color.invert_color = invertColor(_color_value);
 
-            if (history_push) {
-                registColorHistory(color.color);
-            }
+        const _splits = _replaced.split("");
+        switch (_replaced.length) {
+            case 3:
+                color.rgba.r = parseInt(`0x${_splits[0]}${_splits[0]}`);
+                color.rgba.g = parseInt(`0x${_splits[1]}${_splits[1]}`);
+                color.rgba.b = parseInt(`0x${_splits[2]}${_splits[2]}`);
+                break;
+            case 4:
+                color.rgba.r = parseInt(`0x${_splits[0]}${_splits[0]}`);
+                color.rgba.g = parseInt(`0x${_splits[1]}${_splits[1]}`);
+                color.rgba.b = parseInt(`0x${_splits[2]}${_splits[2]}`);
+                color.rgba.a = parseInt(`0x${_splits[3]}${_splits[3]}`) / 255;
+                break;
+            case 6:
+                color.rgba.r = parseInt(`0x${_splits[0]}${_splits[1]}`);
+                color.rgba.g = parseInt(`0x${_splits[2]}${_splits[3]}`);
+                color.rgba.b = parseInt(`0x${_splits[4]}${_splits[5]}`);
+                break;
+            case 8:
+                color.rgba.r = parseInt(`0x${_splits[0]}${_splits[1]}`);
+                color.rgba.g = parseInt(`0x${_splits[2]}${_splits[3]}`);
+                color.rgba.b = parseInt(`0x${_splits[4]}${_splits[5]}`);
+                color.rgba.a = parseInt(`0x${_splits[6]}${_splits[7]}`) / 255;
+                break;
+        }
+
+        if (history_push) {
+            registColorHistory(color.color);
         }
     };
 
-    const registColorHistory = (_c: string) => {
+    const registColorHistory = (value: string) => {
         if (history.color.length > 100) {
             history.color.pop();
         }
-        history.color.push(_c);
-        history.color = history.color;
+
+        history.color.push(value);
+        // console.log(history.color);
+
+        history.color = JSON.parse(JSON.stringify(history.color));
         const _st = JSON.stringify(history.color);
-        localStorage.setItem(color_history_key, _st);
+        localStorage.setItem(COLOR_HISTORY_KEY, _st);
     };
 
     const isColor = (_v: string) => {
@@ -184,7 +185,7 @@
     };
 
     {
-        const _history = localStorage.getItem(color_history_key);
+        const _history = localStorage.getItem(COLOR_HISTORY_KEY);
         console.log("history-is");
 
         console.log(_history);
@@ -200,6 +201,7 @@
 </script>
 
 <div class="page fl cl" style="background-color: {color.color}">
+    <!-- Color History Bar -->
     <aside class="color-history">
         <ul>
             {#each history.color.reverse() as _, i}
@@ -207,12 +209,14 @@
                     <div
                         class="box"
                         style={`background-color: ${_}`}
+                        title={_}
                         on:click={() => applyColor(_, false)}
                     ></div>
                 </li>
             {/each}
         </ul>
     </aside>
+    <!-- Color View And Action. -->
     <div class="abs-1 fl j-c g-2">
         <b class="color-code-preview">{color.color}</b>
         <button type="button" class="btn-tr mt-1" on:click={copyColor}>
@@ -269,6 +273,7 @@
             {/if}
         </label>
     </div>
+    <!-- Color Input Board -->
     <div class="abs-2 fl j-c">
         <div class="p-5 main-board">
             <div class="fl j-c g-1 color-card color-control p-2">
@@ -284,6 +289,11 @@
                     value={color.color}
                     on:input={onInputColorPicker}
                 />
+                <button
+                    on:click={() => registColorHistory(color.color)}
+                    class="btn-tr"
+                    id="history-save-btn">S</button
+                >
             </div>
             <div class="fl g-1 p-2 color-card rgba">
                 <b class="rgb">RGBA</b>
@@ -311,6 +321,7 @@
             </div>
         </div>
     </div>
+    <!-- Color Info -->
     <aside class="aside-board">
         <b class="title">ColorDD</b>
         <ul>
@@ -372,6 +383,10 @@
             .main-board {
                 border-radius: 0.3em;
                 background-color: rgba($color: #fff, $alpha: 0.5);
+                #history-save-btn {
+                    color: #222;
+                    border: solid 1px #222;
+                }
             }
         }
 
