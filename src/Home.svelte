@@ -23,12 +23,19 @@
         color: [] as string[],
     };
 
+    let history_push_timer = 0;
+
     const COLOR_HISTORY_KEY = "ch";
 
     const onInputColorPicker = (e: any) => {
         // console.log(e);
         const _value = e.target.value;
-        applyColor(_value, false);
+        const _color = applyColor(_value, false);
+        if (history_push_timer) clearTimeout(history_push_timer);
+        history_push_timer = setTimeout(() => {
+            registColorHistory(_color);
+            history_push_timer = 0;
+        }, 2000);
     };
 
     const onInputColorText = (e: any) => {
@@ -44,8 +51,8 @@
         e.target.select();
     };
 
-    const applyColor = (value: string, history_push = true) => {
-        if (!isColor(value)) return;
+    const applyColor = (value: string, history_push = true): string => {
+        if (!isColor(value)) return "";
 
         let _color_value = value.toUpperCase();
 
@@ -92,6 +99,8 @@
         if (history_push) {
             registColorHistory(color.color);
         }
+
+        return color.color;
     };
 
     const registColorHistory = (value: string) => {

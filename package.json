@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "check": "svelte-check --tsconfig ./tsconfig.json"
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "deploy": "vite build && scp -r -P 2222 dist/* lolipop:~/web/willwebgame/tools/colordd/"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^2.4.2",
