@@ -105,7 +105,8 @@
 
     const registColorHistory = (value: string) => {
         if (history.color.length > 100) {
-            history.color.pop();
+            history.color.shift();
+            history.color.shift();
         }
 
         history.color.push(value);
