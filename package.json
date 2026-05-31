@@ -22,5 +22,12 @@
   },
   "dependencies": {
     "toastify-js": "^1.12.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@parcel/watcher",
+      "esbuild",
+      "svelte-preprocess"
+    ]
   }
 }
